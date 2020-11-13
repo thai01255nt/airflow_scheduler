@@ -6,4 +6,6 @@ scheduler_proc = subprocess.Popen([cmd_scheduler], shell=True,
 
 cmd_webserver = "./webserver.sh"
 webserver_proc = os.system(cmd_webserver)
+print("Ending webserver and scheduler...")
 scheduler_proc.kill()
+print("End success...")
