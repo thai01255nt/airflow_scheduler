@@ -1,4 +1,5 @@
 FROM python:3.7-slim-buster
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 LABEL maintainer="vmo"
 
 # Never prompt the user for choices on installation/configuration of packages
@@ -19,6 +20,8 @@ ENV LANG en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
 ENV LC_CTYPE en_US.UTF-8
 ENV LC_MESSAGES en_US.UTF-8
+
+WORKDIR ${AIRFLOW_HOME}
 
 # Disable noisy "Handling signal" log messages:
 # ENV GUNICORN_CMD_ARGS --log-level WARNING
@@ -49,12 +52,17 @@ RUN set -ex \
     && locale-gen \
     && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 \
     && useradd -ms /bin/bash -d ${AIRFLOW_USER_HOME} airflow \
+    && python3 -m venv venv \
+    && source $AIRFLOW_HOME/venv/bin/activate \
+    && pip list\
     && pip install -U pip setuptools wheel \
     && pip install pytz \
     && pip install pyOpenSSL \
     && pip install ndg-httpsclient \
     && pip install pyasn1 \
     && pip install apache-airflow[crypto,celery,postgres,hive,jdbc,mysql,ssh${AIRFLOW_DEPS:+,}${AIRFLOW_DEPS}]==${AIRFLOW_VERSION} --use-feature=2020-resolver\
+    && source $AIRFLOW_HOME/venv/bin/activate \
+    && pip list\
     && if [ -n "${PYTHON_DEPS}" ]; then pip install ${PYTHON_DEPS}; fi \
     && apt-get purge --auto-remove -yqq $buildDeps \
     && apt-get autoremove -yqq --purge \
@@ -69,8 +77,6 @@ RUN set -ex \
 
 
 ADD ./ /code/airflow
-ENV AIRFLOW_HOME="/code/airflow"
-WORKDIR ${AIRFLOW_HOME}
 RUN chmod 777 install.sh && ./install.sh
 
 # Start server

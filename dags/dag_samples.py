@@ -19,7 +19,7 @@ ENV = Variable.get("env_config",deserialize_json=True)
 PIPELINEWISE_API_EXECUTOR = ENV["PIPELINEWISE_API_EXECUTOR"]
 
 DAG_CONFIG = {}
-DAG_CONFIG["dag_id"] = "transfer_dag_test_id"
+DAG_CONFIG["dag_id"] = ENV["dag_id"]
 DAG_CONFIG["description"] = "This is a test dag"
 DAG_CONFIG["schedule_interval"] = ENV["SCHEDULE_INTERVAL"]
 
